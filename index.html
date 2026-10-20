@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tes Notifikasi LPG</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,6 +13,7 @@
       text-align: center;
       padding: 60px 20px;
     }
+
     .card {
       background: white;
       padding: 30px;
@@ -20,16 +22,79 @@
       margin: auto;
       box-shadow: 0 4px 15px #0001;
     }
+
     h1 { color: #0f172a; }
     p { color: #64748b; }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 14px 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
+
+  <!-- OneSignal Web SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+    OneSignalDeferred.push(async function(OneSignal) {
+      const status = document.getElementById("status");
+      const tombol = document.getElementById("aktifkan");
+
+      try {
+        await OneSignal.init({
+          appId: "2c63af3d-45ba-4b7f-a8f8-abfba6d5f923"
+        });
+
+        status.textContent = "OneSignal berhasil dimuat.";
+        tombol.disabled = false;
+
+        tombol.addEventListener("click", async function() {
+          try {
+            await OneSignal.Notifications.requestPermission();
+
+            if (OneSignal.User.PushSubscription.optedIn) {
+              status.textContent =
+                "Berhasil! Perangkat berlangganan notifikasi.";
+            } else {
+              status.textContent =
+                "Belum berlangganan. Periksa izin notifikasi browser.";
+            }
+          } catch (error) {
+            status.textContent = "Error: " + error.message;
+          }
+        });
+
+      } catch (error) {
+        status.textContent =
+          "Gagal memuat OneSignal: " + error.message;
+      }
+    });
+  </script>
 </head>
+
 <body>
   <div class="card">
     <h1>Monitoring Kebocoran LPG</h1>
+
     <p>Website percobaan notifikasi IoT</p>
-    <p>Website berhasil dijalankan!</p>
-    <p>Selanjutnya: integrasi OneSignal.</p>
+
+    <button id="aktifkan" disabled>
+      Aktifkan Notifikasi
+    </button>
+
+    <p id="status">Sedang menghubungkan OneSignal...</p>
   </div>
 </body>
 </html>
